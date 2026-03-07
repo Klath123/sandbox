@@ -17,7 +17,7 @@ from layers.layer1_sanitization import Layer1Sanitization
 from layers.layer2_semantic import Layer2Semantic
 from layers.layer3_policy import Layer3Policy
 from layers.layer4_context import Layer4Context
-from layers.layer5_output import Layer5Output
+from sandbox.proxy.layers.layer4_output import Layer5Output
 from layers.layer6_secrets import Layer6Secrets
 from logger import VajraLogger
 
