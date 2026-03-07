@@ -82,24 +82,23 @@ function Navbar() {
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
-                <Link to="/map" className={getLinkClass("/map")}>
-                  Map
+                <Link to="/playground" className={getLinkClass("/playground")}>
+                  Playground
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            {(role === "donor" || role === "admin") && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
-                    to="/restaurantDashboard"
-                    className={getLinkClass("/restaurantDashboard")}
+                    to="/playground2"
+                    className={getLinkClass("/playground2")}
                   >
-                    Donate
+                    Playground 2
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-            )}
+            
 
             <div className="ml-auto flex items-center gap-4">
               <NavigationMenuItem>
