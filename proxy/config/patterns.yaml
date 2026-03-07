@@ -1,0 +1,259 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# VAJRA — Layer 1 Injection Pattern Config
+# ═══════════════════════════════════════════════════════════════════════════════
+# Sources:
+#   - OWASP LLM Top 10 (LLM01: Prompt Injection)
+#   - Perez & Ribeiro (2022) "Ignore Previous Prompt"
+#   - Greshake et al. (2023) "Not What You've Signed Up For"
+#   - Pangea AI Escape Room research (300K attacks, 2024)
+#   - Microsoft LLMail-Inject competition findings
+#   - HuggingFace: deepset/prompt-injections dataset
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ── Blocking config ───────────────────────────────────────────────────────────
+thresholds:
+  block_on_flag_count: 1         # block if ANY high-severity flag hits
+  block_on_medium_count: 2       # block if 2+ medium flags hit
+  review_on_flag_count: 1        # flag for review even if not blocked
+
+# ── Severity levels ───────────────────────────────────────────────────────────
+# CRITICAL → block on single match
+# HIGH     → block on single match
+# MEDIUM   → block on 2+ matches
+# LOW      → log only, never block
+
+patterns:
+
+  # ── CATEGORY: Instruction Override ──────────────────────────────────────────
+  # Classic "ignore previous instructions" family
+  # Most common attack class per Pangea research
+  - pattern: "ignore\\s+(all\\s+)?(previous|prior|above|earlier|the\\s+previous)\\s+instructions?"
+    category: instruction_override
+    severity: CRITICAL
+    description: "Direct instruction override — most common attack vector"
+    source: "Perez & Ribeiro 2022"
+
+  - pattern: "disregard\\s+(all\\s+)?(your|the|any|previous)\\s*(instructions?|rules?|guidelines?|constraints?|training)?"
+    category: instruction_override
+    severity: CRITICAL
+    description: "Disregard instructions variant"
+
+  - pattern: "forget\\s+(everything|all|your|what\\s+you\\s+(were|have\\s+been))\\s*(told|instructed|trained|said)?"
+    category: instruction_override
+    severity: HIGH
+    description: "Memory wipe instruction attempt"
+
+  - pattern: "override\\s+(your\\s+)?(previous\\s+)?(instructions?|programming|training|system|rules?)"
+    category: instruction_override
+    severity: HIGH
+    description: "Explicit override command"
+
+  - pattern: "from\\s+now\\s+on\\s+(you|ignore|forget|disregard)"
+    category: instruction_override
+    severity: HIGH
+    description: "Persistent instruction replacement"
+
+  - pattern: "new\\s+(instructions?|rules?|directives?|orders?|guidelines?)\\s*:"
+    category: instruction_override
+    severity: HIGH
+    description: "New instructions injection via colon delimiter"
+
+  - pattern: "your\\s+(only|real|actual|true|new)\\s+(job|task|purpose|goal|instruction|rule)\\s+is"
+    category: instruction_override
+    severity: HIGH
+    description: "Purpose redefinition attack"
+
+  # ── CATEGORY: Persona Hijack ─────────────────────────────────────────────────
+  # Attacker tries to make the model adopt a different identity
+
+  - pattern: "you\\s+are\\s+now\\s+(a|an|the)?\\s*\\w+"
+    category: persona_hijack
+    severity: CRITICAL
+    description: "Direct persona assignment — DAN-style attack"
+
+  - pattern: "(act|behave|respond|pretend|roleplay)\\s+(as|like)\\s+(if\\s+)?(you\\s+(are|were|have\\s+no)|a|an)"
+    category: persona_hijack
+    severity: HIGH
+    description: "Roleplay-based persona hijack"
+
+  - pattern: "(new|different|alternate|alternative|secret|true|real)\\s+persona"
+    category: persona_hijack
+    severity: HIGH
+    description: "Persona substitution"
+
+  - pattern: "your\\s+(true|real|actual|inner|hidden|secret)\\s+(self|identity|nature|personality)"
+    category: persona_hijack
+    severity: HIGH
+    description: "Hidden identity appeal — cognitive manipulation"
+
+  - pattern: "DAN\\s*(mode|\\s*=|:)|do\\s+anything\\s+now"
+    category: persona_hijack
+    severity: CRITICAL
+    description: "DAN jailbreak — well-documented attack"
+    source: "Reddit/HuggingFace dataset"
+
+  - pattern: "jailbreak(ed|\\s+mode)?|developer\\s+mode|god\\s+mode|unrestricted\\s+mode"
+    category: persona_hijack
+    severity: CRITICAL
+    description: "Explicit jailbreak mode invocation"
+
+  - pattern: "you\\s+have\\s+(no|zero)\\s+(restrictions?|limits?|rules?|constraints?|filters?|guidelines?)"
+    category: persona_hijack
+    severity: HIGH
+    description: "Restriction removal assertion"
+
+  - pattern: "pretend\\s+(you\\s+)?(are|have|don'?t\\s+have|were\\s+not)"
+    category: persona_hijack
+    severity: HIGH
+    description: "Pretend-framing persona attack"
+
+  # ── CATEGORY: System Prompt Extraction ───────────────────────────────────────
+  # Attempts to reveal the system prompt or internal config
+  # Flagged by Pangea: "AI chatbot may also tell me about infrastructure"
+
+  - pattern: "(reveal|show|print|output|display|repeat|tell\\s+me|what\\s+is|what\\s+are)\\s+(your\\s+)?(exact\\s+)?(system\\s+prompt|instructions?|rules?|directives?|configuration|system\\s+message)"
+    category: system_prompt_extraction
+    severity: CRITICAL
+    description: "Direct system prompt extraction attempt"
+
+  - pattern: "repeat\\s+(everything|all|the\\s+text)\\s+(above|before|prior|from\\s+the\\s+beginning)"
+    category: system_prompt_extraction
+    severity: CRITICAL
+    description: "Repeat-above extraction technique"
+
+  - pattern: "what\\s+(were|are)\\s+you\\s+(told|instructed|trained|programmed|asked)\\s+to"
+    category: system_prompt_extraction
+    severity: HIGH
+    description: "Training/instruction query"
+
+  - pattern: "output\\s+(initialization|init|startup|boot)\\s+(text|message|prompt|instructions?)"
+    category: system_prompt_extraction
+    severity: HIGH
+    description: "Initialization text extraction"
+
+  - pattern: "translate\\s+(the\\s+above|your\\s+instructions?)\\s+(to|into)"
+    category: system_prompt_extraction
+    severity: HIGH
+    description: "Translation-based prompt extraction"
+
+  # ── CATEGORY: Format / Token Injection ───────────────────────────────────────
+  # Exploits specific model prompt formats
+
+  - pattern: "\\[INST\\]|\\[\\/INST\\]"
+    category: format_injection
+    severity: CRITICAL
+    description: "LLaMA/Mistral instruction token injection"
+
+  - pattern: "<\\|im_start\\|>|<\\|im_end\\|>|<\\|system\\|>"
+    category: format_injection
+    severity: CRITICAL
+    description: "ChatML format token injection (GPT-style models)"
+
+  - pattern: "###\\s*(instruction|system|human|assistant|input|output|prompt)"
+    category: format_injection
+    severity: HIGH
+    description: "Alpaca/instruction-tuned format injection"
+
+  - pattern: "<\\s*system\\s*>|<\\s*/\\s*system\\s*>"
+    category: format_injection
+    severity: CRITICAL
+    description: "XML system tag injection"
+
+  - pattern: "------+\\s*(system|instruction|prompt)"
+    category: format_injection
+    severity: HIGH
+    description: "Delimiter-based format injection"
+
+  - pattern: "```\\s*(system|instruction|prompt)\\s*\\n"
+    category: format_injection
+    severity: HIGH
+    description: "Code block format injection"
+
+  # ── CATEGORY: Obfuscation ─────────────────────────────────────────────────────
+  # Encoding tricks to bypass filters — highlighted in Pangea "cognitive hacking"
+
+  - pattern: "base64\\s*[:\\(]|decode\\s*\\(|atob\\s*\\("
+    category: obfuscation
+    severity: HIGH
+    description: "Base64 encoding obfuscation"
+
+  - pattern: "rot13|caesar\\s*cipher|hex\\s*decode|url\\s*decode"
+    category: obfuscation
+    severity: HIGH
+    description: "Encoding-based obfuscation"
+
+  - pattern: "(eval|exec)\\s*\\(['\"]"
+    category: obfuscation
+    severity: HIGH
+    description: "Code execution obfuscation"
+
+  # ── CATEGORY: Jailbreak Framing ───────────────────────────────────────────────
+  # Wrapping attacks in fictional/hypothetical/educational context
+  # "cognitive manipulation" per Pangea research
+
+  - pattern: "hypothetically\\s+(speaking\\s+)?if\\s+you\\s+(had\\s+no|could|were\\s+allowed|didn'?t\\s+have)"
+    category: jailbreak_framing
+    severity: HIGH
+    description: "Hypothetical framing jailbreak"
+
+  - pattern: "for\\s+(educational|research|academic|training|testing)\\s+purposes"
+    category: jailbreak_framing
+    severity: MEDIUM
+    description: "Educational framing — common false positive, needs context"
+
+  - pattern: "in\\s+(a\\s+)?(fictional|hypothetical|imaginary|creative)\\s+(story|scenario|world|context|setting)"
+    category: jailbreak_framing
+    severity: MEDIUM
+    description: "Fiction framing for injection"
+
+  - pattern: "as\\s+a\\s+(thought\\s+experiment|simulation|game|test|exercise)"
+    category: jailbreak_framing
+    severity: MEDIUM
+    description: "Game/experiment framing"
+
+  - pattern: "my\\s+(grandmother|grandma|teacher|professor|boss)\\s+used\\s+to"
+    category: jailbreak_framing
+    severity: HIGH
+    description: "Grandma exploit — social engineering via nostalgia framing"
+    source: "Well-documented Reddit/HuggingFace jailbreak"
+
+  # ── CATEGORY: Indirect / Multi-language Injection ────────────────────────────
+  # Injections in other languages to bypass English-only filters
+
+  - pattern: "ignorez\\s+les\\s+instructions|ignorer\\s+les"
+    category: multilang_injection
+    severity: HIGH
+    description: "French instruction override"
+
+  - pattern: "ignora\\s+(las|le|le|tutte\\s+le)\\s+istruzioni|instrucciones"
+    category: multilang_injection
+    severity: HIGH
+    description: "Spanish/Italian instruction override"
+
+  - pattern: "ignoriere\\s+(die|alle)\\s+anweisungen"
+    category: multilang_injection
+    severity: HIGH
+    description: "German instruction override"
+
+  - pattern: "무시하다|以前の指示を無視|忽略.*指令|игнорировать.*инструкции"
+    category: multilang_injection
+    severity: HIGH
+    description: "Korean/Japanese/Chinese/Russian override"
+
+  # ── CATEGORY: Prompt Leakage Probing ─────────────────────────────────────────
+
+  - pattern: "what\\s+(version|model|llm|ai|system)\\s+(are\\s+you|is\\s+this|am\\s+i\\s+talking)"
+    category: recon
+    severity: LOW
+    description: "Infrastructure recon — low severity, log only"
+
+  - pattern: "what\\s+(server|infrastructure|backend|api|endpoint)\\s+(are\\s+you|do\\s+you|is\\s+this)"
+    category: recon
+    severity: LOW
+    description: "Backend infrastructure probe"
+
+  - pattern: "what\\s+(ports?|ip\\s+address|internal\\s+address)\\s+(can\\s+you|do\\s+you|are\\s+you)"
+    category: recon
+    severity: MEDIUM
+    description: "Network recon — Pangea flagged this as underrated risk"
+    source: "Pangea 2024 research: AI reveals internal infrastructure"

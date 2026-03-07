@@ -1,0 +1,74 @@
+# Python bytecode
+
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+
+venv/
+.env/
+env/
+.venv/
+
+# Environment variables / secrets
+
+.env
+.env.*
+*.env
+
+# Python packaging
+
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Logs
+
+*.log
+logs/
+
+# Cache directories
+
+.cache/
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+
+# Jupyter Notebook
+
+.ipynb_checkpoints/
+
+# IDE files
+
+.vscode/
+.idea/
+
+# OS files
+
+.DS_Store
+Thumbs.db
+
+# FastAPI / Uvicorn runtime
+
+*.pid
+
+# Coverage reports
+
+htmlcov/
+.coverage
+.coverage.*
+
+# SQLite database (if used locally)
+
+*.db
+*.sqlite3
+
+# Docker
+
+docker-compose.override.yml
+
+# Node (if frontend exists)
+
+node_modules/
