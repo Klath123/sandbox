@@ -3,9 +3,9 @@ import { arc } from "d3-shape"
 import { motion, AnimatePresence } from "framer-motion"
 import { levels } from "@/components/levels"
 
-const SIZE = 720
+const SIZE = 520
 const CENTER = SIZE / 2
-const RING_WIDTH = 68
+const RING_WIDTH = 55
 
 const LEVEL_ACCENT = ["#38bdf8", "#818cf8", "#34d399", "#fb923c"]
 

@@ -15,6 +15,7 @@ import ThreatFeed from './pages/Monitoring';
 import ForensicAudit from './pages/ForensicAudit';
 import VajraPlayground from './pages/VajraPlayground';
 import SystemConfig from './pages/SystemConfig';
+import Playground from './pages/Playground';
 
 const App = () => {
   const [activePage, setActivePage] = useState('dashboard');
@@ -23,7 +24,7 @@ const App = () => {
     { id: 'dashboard', label: 'Command Center', icon: LayoutDashboard },
     { id: 'live', label: 'Live Threat Feed', icon: Zap },
     { id: 'audit', label: 'Forensic Audit', icon: History },
-    // { id: 'playground', label: 'Vajra Playground', icon: PlayCircle },
+    { id: 'playground', label: 'Playground', icon: PlayCircle },
     { id: 'config', label: 'System Config', icon: Settings },
   ];
 
@@ -32,7 +33,7 @@ const App = () => {
       case 'dashboard': return <CommandCenter />;
       case 'live': return <ThreatFeed />;
       case 'audit': return <ForensicAudit />;
-      case 'playground': return <VajraPlayground />;
+      case 'playground': return <Playground />;
       case 'config': return <SystemConfig />;
       default: return <CommandCenter />;
     }
