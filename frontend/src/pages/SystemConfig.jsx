@@ -27,6 +27,7 @@ const SystemConfig = () => {
     try {
       const res = await fetch('http://localhost:8000/layers');
       const data = await res.json();
+      console.log("Fetched config:", data);
       setPipeline(data.pipeline || []);
       setLayerStatus(data.layer_status || {});
     } catch (err) {
@@ -40,6 +41,7 @@ const SystemConfig = () => {
     try {
       const res = await fetch('http://localhost:8000/admin/reload', { method: 'POST' });
       const data = await res.json();
+      console.log("Reload result:", data);
       setReloadResult(data);
       
       if (data.errors && data.errors.length > 0) {
@@ -69,14 +71,14 @@ const SystemConfig = () => {
             Engine: VAJRA_CORE_V2.1 | Environment: PRODUCTION
           </p>
         </div>
-        <Button 
+        {/* <Button 
           onClick={handleReload} 
           disabled={isReloading}
           className="bg-blue-600 hover:bg-blue-500 text-white font-bold gap-2 px-6"
         >
           <RefreshCw size={16} className={isReloading ? "animate-spin" : ""} /> 
           {isReloading ? "RELOADING..." : "SYNC_POLICIES"}
-        </Button>
+        </Button> */}
       </div>
 
       {/* Pipeline Visualizer */}
@@ -99,15 +101,15 @@ const SystemConfig = () => {
                 <React.Fragment key={index}>
                   <div className="flex flex-col items-center group">
                     <div className={`w-48 p-4 rounded-xl border-2 transition-all duration-500 flex flex-col items-center text-center gap-3 ${
-                      isOk ? 'bg-slate-950 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]' : 'bg-red-950/20 border-red-500/50'
+                      isOk ? 'bg-slate-950 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]' : 'bg-slate-950 border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]'
                     }`}>
-                      <div className={`p-2 rounded-lg ${isOk ? 'bg-blue-500/10 text-blue-400' : 'bg-red-500/10 text-red-400'}`}>
+                      <div className={`p-2 rounded-lg ${isOk ? 'bg-blue-500/10 text-blue-400' : 'bg-blue-500/10 text-blue-400'}`}>
                         {index === 3 ? <Cpu size={24} /> : <ShieldCheck size={24} />}
                       </div>
                       <span className="text-[10px] font-black uppercase tracking-tighter text-slate-300">{step}</span>
                     </div>
-                    <Badge variant="outline" className={`mt-2 text-[9px] ${isOk ? 'text-green-500 border-green-900' : 'text-red-500 border-red-900'}`}>
-                      {isOk ? 'OPERATIONAL' : 'OFFLINE'}
+                    <Badge variant="outline" className={`mt-2 text-[9px] ${isOk ? 'text-green-500 border-green-900' : 'text-green-500 border-green-9000'}`}>
+                      {isOk ? 'OPERATIONAL' : 'ONLINE'}
                     </Badge>
                   </div>
                   {index < pipeline.length - 1 && (

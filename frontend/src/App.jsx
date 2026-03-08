@@ -23,7 +23,7 @@ const App = () => {
     { id: 'dashboard', label: 'Command Center', icon: LayoutDashboard },
     { id: 'live', label: 'Live Threat Feed', icon: Zap },
     { id: 'audit', label: 'Forensic Audit', icon: History },
-    { id: 'playground', label: 'Vajra Playground', icon: PlayCircle },
+    // { id: 'playground', label: 'Vajra Playground', icon: PlayCircle },
     { id: 'config', label: 'System Config', icon: Settings },
   ];
 
