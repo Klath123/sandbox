@@ -1,10 +1,10 @@
-# VAJRA - Secure LLM Proxy Gateway
+# SLEATH - Secure LLM Proxy Gateway
 
-![VAJRA Logo Placeholder](pic1.png)
+
 
 ## Overview
 
-VAJRA is a production-grade, multi-layer security proxy designed to protect Large Language Model (LLM) applications from prompt injection, jailbreak attempts, data leakage, and unauthorized access. Named after the mythical indestructible weapon, VAJRA serves as an impenetrable shield between your users and your LLM backend.
+sleath is a production-grade, multi-layer security proxy designed to protect Large Language Model (LLM) applications from prompt injection, jailbreak attempts, data leakage, and unauthorized access. Named after the mythical indestructible weapon, VAJRA serves as an impenetrable shield between your users and your LLM backend.
 
 ### Key Features
 
